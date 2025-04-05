@@ -5,6 +5,8 @@ from scipy import signal
 import io
 import soundfile as sf
 from pydub import AudioSegment
+import librosa
+import json
 
 app = FastAPI()
 
@@ -50,15 +52,19 @@ async def create_code(
         # ノイズ除去を適用
         denoised_audio = denoise_audio(audio_data, sample_rate)
 
+        # 音声特徴量の抽出
+        audio_features = analyze_audio(denoised_audio, sample_rate)
+
         # 処理済みの音声データをバイトデータに変換
         output_buffer = io.BytesIO()
         sf.write(output_buffer, denoised_audio, sample_rate, format='WAV')
         processed_audio = output_buffer.getvalue()
 
         return {
-            "message": "ノイズ除去が完了しました",
+            "message": "音声解析が完了しました",
             "bpm": bpm,
-            "audio_size": len(processed_audio)
+            "audio_size": len(processed_audio),
+            "audio_features": audio_features
         }
     except Exception as e:
         return {"message": f"エラーが発生しました: {str(e)}"}
@@ -88,3 +94,42 @@ def denoise_audio(audio_data, sample_rate):
     _, denoised_audio = signal.istft(Zxx_denoised, fs=sample_rate, nperseg=frame_length, noverlap=hop_length)
 
     return denoised_audio
+
+def analyze_audio(audio_data, sample_rate):
+    features = {}
+
+    # テンポ推定
+    onset_env = librosa.onset.onset_strength(y=audio_data, sr=sample_rate)
+    tempo = librosa.beat.tempo(onset_envelope=onset_env, sr=sample_rate)[0]
+    features['tempo'] = float(tempo)
+
+    # ピッチ推定
+    pitches, magnitudes = librosa.piptrack(y=audio_data, sr=sample_rate)
+    pitches_flat = pitches[magnitudes > np.median(magnitudes)]
+    if len(pitches_flat) > 0:
+        features['average_pitch'] = float(np.mean(pitches_flat))
+        features['pitch_std'] = float(np.std(pitches_flat))
+
+    # スペクトル特徴量
+    # スペクトル重心（音の明るさ）
+    spectral_centroids = librosa.feature.spectral_centroid(y=audio_data, sr=sample_rate)[0]
+    features['spectral_centroid_mean'] = float(np.mean(spectral_centroids))
+
+    # スペクトルロールオフ（音の特性）
+    spectral_rolloff = librosa.feature.spectral_rolloff(y=audio_data, sr=sample_rate)[0]
+    features['spectral_rolloff_mean'] = float(np.mean(spectral_rolloff))
+
+    # MFCCs（音色の特徴）
+    mfccs = librosa.feature.mfcc(y=audio_data, sr=sample_rate, n_mfcc=13)
+    features['mfccs_mean'] = [float(np.mean(mfcc)) for mfcc in mfccs]
+
+    # クロマグラム（音階の分布）
+    chromagram = librosa.feature.chroma_stft(y=audio_data, sr=sample_rate)
+    features['chroma_mean'] = [float(np.mean(chroma)) for chroma in chromagram]
+
+    # RMSエネルギー（音量の変化）
+    rms = librosa.feature.rms(y=audio_data)[0]
+    features['rms_mean'] = float(np.mean(rms))
+    features['rms_std'] = float(np.std(rms))
+
+    return features
