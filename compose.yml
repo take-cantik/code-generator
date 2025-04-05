@@ -1,0 +1,15 @@
+version: "3.9"
+
+services:
+  server:
+    container_name: server
+    build:
+      context: .
+      dockerfile: docker/fast-api/Dockerfile
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./server:/work/src
+    environment:
+      - PYTHONPATH=/work/src
+    restart: unless-stopped
