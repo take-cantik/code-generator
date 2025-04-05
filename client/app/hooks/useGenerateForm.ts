@@ -6,8 +6,14 @@ type FormData = {
   audioData?: Blob;
 };
 
+type ChordProgression = {
+  capo: number;
+  codeList: string[];
+};
+
 export const useGenerateForm = () => {
-  const [codeList, setCodeList] = useState<string[] | null>(null);
+  const [chordProgression, setCodeProgression] =
+    useState<ChordProgression | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
@@ -82,10 +88,10 @@ export const useGenerateForm = () => {
       });
 
       const responseData = await response.json();
-      setCodeList(responseData.code_list);
+      setCodeProgression(responseData);
     } catch (error) {
       console.error("Error:", error);
-      setCodeList(null);
+      setCodeProgression(null);
     } finally {
       setIsLoading(false);
     }
@@ -99,7 +105,7 @@ export const useGenerateForm = () => {
     stopRecording,
     isRecording,
     isLoading,
-    codeList,
+    chordProgression,
     audioUrl,
     audioPlayerRef,
     bpm,

@@ -13,7 +13,7 @@ export default function GenerateForm() {
     stopRecording,
     isRecording,
     isLoading,
-    codeList,
+    chordProgression,
     audioUrl,
     audioPlayerRef,
     bpm,
@@ -82,20 +82,23 @@ export default function GenerateForm() {
             />
           </div>
         )}
-        {codeList && (
-          <div className="grid grid-cols-4 gap-4">
-            {codeList.map((code) => (
-              <ChordChart key={code} chordName={code} />
-            ))}
+        {chordProgression && (
+          <div>
+            <p>カポの位置: {chordProgression.capo}</p>
+            <div className="grid grid-cols-4 gap-4">
+              {chordProgression.codeList.map((code) => (
+                <ChordChart key={code} chordName={code} />
+              ))}
+            </div>
           </div>
         )}
-        <div className="grid grid-cols-4 gap-4">
+        {/* <div className="grid grid-cols-4 gap-4">
           {["C", "B", "F", "Fm7", "A", "Cm", "B", "F", "Fm7", "G#"].map(
             (code) => (
               <ChordChart key={code} chordName={code} />
             )
           )}
-        </div>
+        </div> */}
       </div>
     </>
   );

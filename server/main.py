@@ -65,7 +65,7 @@ async def create_code(
         audio_features = analyze_audio(denoised_audio, sample_rate)
 
         # コード進行の生成
-        code_list = generate_chord_progression(audio_features)
+        chord_progression = generate_chord_progression(audio_features)
 
         # 処理済みの音声データをバイトデータに変換
         output_buffer = io.BytesIO()
@@ -73,11 +73,8 @@ async def create_code(
         processed_audio = output_buffer.getvalue()
 
         return {
-            "message": "音声解析とコード進行の生成が完了しました",
-            "bpm": bpm,
-            "audio_size": len(processed_audio),
-            "audio_features": audio_features,
-            "code_list": code_list,
+            "codeList": chord_progression["chords"],
+            "capo": chord_progression["capo"],
         }
     except Exception as e:
         return {"message": f"エラーが発生しました: {str(e)}"}
@@ -174,13 +171,14 @@ def generate_chord_progression(features):
                 "role": "system",
                 "content": """
                 あなたは音楽理論の専門家です。与えられた音声の特徴量に基づいて、
-                最適なギターのコード進行を提案してください。
+                最適なギターのコード進行と、カポの位置を提案してください。
                 以下の点を考慮してください：
                 - テンポに合った適切なリズム感
                 - 1小節毎にコード進行を提案
                 - 主要な音階に基づいたキーの選択
                 - 曲の雰囲気に合った進行
                 - 16小節程度の進行を提案
+                - カポの位置は0から5の数字で指定
                 """
             },
             {
@@ -192,10 +190,8 @@ def generate_chord_progression(features):
 
                 以下の形式でJSON形式で回答してください：
                 {{
-                    "key": "選択したキー（例: "C"）",
-                    "key_reason": "キーを選択した理由",
+                    "capo": "カポの位置",
                     "chords": ["コード1", "コード2", "コード3", ...],  // 8小節分のコード進行
-                    "explanation": "進行の説明と演奏アドバイス"
                 }}
 
                 使用可能なコード：
@@ -209,8 +205,17 @@ def generate_chord_progression(features):
     # レスポンスをJSONとしてパースし、コード進行の配列を抽出
     try:
         result = json.loads(response.choices[0].message.content)
-        return result["chords"]
+        return {
+            "chords": result["chords"],
+            "capo": result["capo"],
+        }
     except json.JSONDecodeError:
-        return []  # JSONのパースに失敗した場合は空配列を返す
+        return {
+            "chords": [],
+            "capo": 0,
+        }
     except KeyError:
-        return []  # chordsキーが存在しない場合は空配列を返す
+        return {
+            "chords": [],
+            "capo": 0,
+        }
