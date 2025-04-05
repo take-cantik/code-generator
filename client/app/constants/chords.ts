@@ -397,4 +397,136 @@ export const GUITAR_CHORDS: { [key: string]: ChordData } = {
     ],
     barres: [{ fromString: 5, toString: 1, fret: 2 }],
   },
+
+  // sus4
+  Csus4: {
+    positions: [
+      [2, 4],
+      [3, 3],
+      [4, 3],
+      [6, "x"],
+    ],
+    barres: [{ fromString: 5, toString: 1, fret: 1 }],
+    position: 3,
+  },
+  Dsus4: {
+    positions: [
+      [1, 3],
+      [2, 3],
+      [3, 2],
+      [4, 0],
+      [5, "x"],
+      [6, "x"],
+    ],
+  },
+  Esus4: {
+    positions: [
+      [1, 0],
+      [2, 0],
+      [3, 2],
+      [4, 2],
+      [5, 2],
+      [6, 0],
+    ],
+  },
+  Fsus4: {
+    positions: [
+      [3, 3],
+      [4, 3],
+      [5, 3],
+    ],
+    barres: [{ fromString: 6, toString: 1, fret: 1 }],
+  },
+  Gsus4: {
+    positions: [
+      [1, 3],
+      [2, 1],
+      [3, 0],
+      [4, 0],
+      [5, 3],
+      [6, 3],
+    ],
+  },
+  Asus4: {
+    positions: [
+      [1, 0],
+      [2, 3],
+      [3, 2],
+      [4, 2],
+      [5, 0],
+      [6, "x"],
+    ],
+  },
+  Bsus4: {
+    positions: [
+      [2, 5],
+      [3, 4],
+      [4, 4],
+      [6, "x"],
+    ],
+    barres: [{ fromString: 5, toString: 1, fret: 2 }],
+  },
+  C7sus4: {
+    positions: [
+      [2, 4],
+      [4, 3],
+      [6, "x"],
+    ],
+    barres: [{ fromString: 5, toString: 1, fret: 1 }],
+    position: 3,
+  },
+  D7sus4: {
+    positions: [
+      [1, 3],
+      [2, 1],
+      [3, 2],
+      [4, 0],
+      [5, "x"],
+      [6, "x"],
+    ],
+  },
+  E7sus4: {
+    positions: [
+      [1, 0],
+      [2, 0],
+      [3, 2],
+      [4, 0],
+      [5, 2],
+      [6, 0],
+    ],
+  },
+  F7sus4: {
+    positions: [
+      [3, 3],
+      [5, 3],
+    ],
+    barres: [{ fromString: 6, toString: 1, fret: 1 }],
+  },
+  G7sus4: {
+    positions: [
+      [3, 0],
+      [4, 0],
+      [5, 3],
+      [6, 3],
+    ],
+    barres: [{ fromString: 2, toString: 1, fret: 1 }],
+  },
+  A7sus4: {
+    positions: [
+      [1, 0],
+      [2, 3],
+      [3, 0],
+      [4, 2],
+      [5, 0],
+      [6, "x"],
+    ],
+  },
+  B7sus4: {
+    positions: [
+      [2, 5],
+      [4, 4],
+      [6, "x"],
+    ],
+    barres: [{ fromString: 5, toString: 1, fret: 2 }],
+  },
 };
