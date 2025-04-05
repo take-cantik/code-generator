@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 
 type FormData = {
   bpm: number;
+  audioData?: Blob;
 };
 
 export const useGenerateForm = () => {
@@ -14,7 +15,7 @@ export const useGenerateForm = () => {
   const audioChunksRef = useRef<Blob[]>([]);
   const audioPlayerRef = useRef<HTMLAudioElement>(null);
 
-  const { register, handleSubmit, watch } = useForm<FormData>({
+  const { register, handleSubmit, watch, setValue } = useForm<FormData>({
     defaultValues: {
       bpm: 120,
     },
@@ -28,6 +29,7 @@ export const useGenerateForm = () => {
       const mediaRecorder = new MediaRecorder(stream, {
         mimeType: "audio/webm",
       });
+
       mediaRecorderRef.current = mediaRecorder;
       audioChunksRef.current = [];
 
@@ -43,6 +45,7 @@ export const useGenerateForm = () => {
         });
         const url = URL.createObjectURL(audioBlob);
         setAudioUrl(url);
+        setValue("audioData", audioBlob);
       };
 
       mediaRecorder.start(100);
@@ -67,12 +70,15 @@ export const useGenerateForm = () => {
     setIsLoading(true);
 
     try {
+      const formData = new FormData();
+      formData.append("bpm", data.bpm.toString());
+      if (data.audioData) {
+        formData.append("audio", data.audioData);
+      }
+
       const response = await fetch("http://localhost:8080/code", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
+        body: formData,
       });
 
       const responseData = await response.json();
