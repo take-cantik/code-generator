@@ -195,8 +195,13 @@ def generate_chord_progression(features):
                 }}
 
                 使用可能なコード：
-                メジャー: "C", "D", "E", "F", "G", "A", "B"
-                マイナー: "Cm", "Dm", "Em", "Fm", "Gm", "Am", "Bm"
+                メジャー: "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"
+                マイナー: "Cm", "C#m", "Dm", "D#m", "Em", "Fm", "F#m", "Gm", "G#m", "Am", "A#m", "Bm"
+                メジャーセブンス: "C7", "C#7", "D7", "D#7", "E7", "F7", "F#7", "G7", "G#7", "A7", "A#7", "B7"
+                マイナーセブンス: "Cm7", "C#m7", "Dm7", "D#m7", "Em7", "Fm7", "F#m7", "Gm7", "G#m7", "Am7", "A#m7", "Bm7"
+                マイナーメジャーセブンス: "CmM7", "C#mM7", "DmM7", "D#mM7", "EmM7", "FmM7", "F#mM7", "GmM7", "G#mM7", "AmM7", "A#mM7", "BmM7"
+                サス4: "Csus4", "C#sus4", "Dsus4", "D#sus4", "Esus4", "Fsus4", "F#sus4", "Gsus4", "G#sus4", "Asus4", "A#sus4", "Bsus4"
+                セブンスサス4: "C7sus4", "C#7sus4", "D7sus4", "D#7sus4", "E7sus4", "F7sus4", "F#7sus4", "G7sus4", "G#7sus4", "A7sus4", "A#7sus4", "B7sus4"
                 """
             }
         ]
