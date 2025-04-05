@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useForm } from "react-hook-form";
 
 type FormData = {
@@ -11,6 +11,11 @@ type FormData = {
 export default function GenerateForm() {
   const [result, setResult] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+  const audioPlayerRef = useRef<HTMLAudioElement>(null);
 
   const {
     register,
@@ -22,6 +27,48 @@ export default function GenerateForm() {
       bpm: 120,
     },
   });
+
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mediaRecorder = new MediaRecorder(stream, {
+        mimeType: "audio/webm",
+      });
+      mediaRecorderRef.current = mediaRecorder;
+      audioChunksRef.current = [];
+
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+        }
+      };
+
+      mediaRecorder.onstop = () => {
+        const audioBlob = new Blob(audioChunksRef.current, {
+          type: "audio/webm",
+        });
+        const url = URL.createObjectURL(audioBlob);
+        setAudioUrl(url);
+      };
+
+      // 100msごとにデータを収集
+      mediaRecorder.start(100);
+      setIsRecording(true);
+    } catch (error) {
+      console.error("録音の開始に失敗しました:", error);
+      alert("マイクへのアクセスが拒否されました");
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && isRecording) {
+      mediaRecorderRef.current.stop();
+      mediaRecorderRef.current.stream
+        .getTracks()
+        .forEach((track) => track.stop());
+      setIsRecording(false);
+    }
+  };
 
   const onSubmit = async (data: FormData) => {
     setIsLoading(true);
@@ -75,13 +122,17 @@ export default function GenerateForm() {
       <div className="space-x-2">
         <button
           type="button"
-          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          onClick={startRecording}
+          disabled={isRecording}
+          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:bg-gray-400"
         >
-          録音開始
+          {isRecording ? "録音中..." : "録音開始"}
         </button>
         <button
           type="button"
-          className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+          onClick={stopRecording}
+          disabled={!isRecording}
+          className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 disabled:bg-gray-400"
         >
           録音停止
         </button>
@@ -93,6 +144,17 @@ export default function GenerateForm() {
           {isLoading ? "生成中..." : "生成"}
         </button>
       </div>
+      {audioUrl && (
+        <div className="mt-4">
+          <h3 className="text-lg font-medium mb-2">録音した音声</h3>
+          <audio
+            ref={audioPlayerRef}
+            src={audioUrl}
+            controls
+            className="w-full"
+          />
+        </div>
+      )}
       {result && <div className="mt-4 p-4 bg-gray-100 rounded">{result}</div>}
     </form>
   );
