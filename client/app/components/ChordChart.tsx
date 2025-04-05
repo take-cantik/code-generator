@@ -12,8 +12,8 @@ type ChordChartProps = {
 
 export default function ChordChart({
   chordName,
-  width = 100,
-  height = 120,
+  width = 120,
+  height = 150,
 }: ChordChartProps) {
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -47,8 +47,11 @@ export default function ChordChart({
   }, [chordName, width, height]);
 
   return (
-    <div className="inline-block text-center">
-      <div className="transform -rotate-90" ref={containerRef} />
+    <div className="inline-block text-center w-[150px] h-[180px] p-4">
+      <div
+        className="transform -rotate-90 w-full h-full flex items-center justify-center"
+        ref={containerRef}
+      />
       <div className="mt-2 text-sm font-medium">{chordName}</div>
     </div>
   );

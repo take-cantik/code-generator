@@ -89,6 +89,13 @@ export default function GenerateForm() {
             ))}
           </div>
         )}
+        <div className="grid grid-cols-4 gap-4">
+          {["C", "B", "F", "Fm7", "A", "Cm", "B", "F", "Fm7", "G#"].map(
+            (code) => (
+              <ChordChart key={code} chordName={code} />
+            )
+          )}
+        </div>
       </div>
     </>
   );
