@@ -73,7 +73,7 @@ export const useGenerateForm = () => {
       const formData = new FormData();
       formData.append("bpm", data.bpm.toString());
       if (data.audioData) {
-        formData.append("audio", data.audioData);
+        formData.append("audio", data.audioData, "recording.webm");
       }
 
       const response = await fetch("http://localhost:8080/code", {
