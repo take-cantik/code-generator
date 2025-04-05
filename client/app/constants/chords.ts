@@ -42,14 +42,11 @@ export const GUITAR_CHORDS: { [key: string]: ChordData } = {
   },
   F: {
     positions: [
-      [6, 1],
       [5, 3],
       [4, 3],
       [3, 2],
-      [2, 1],
-      [1, 1],
     ],
-    barres: [{ fromString: 1, toString: 6, fret: 1 }],
+    barres: [{ fromString: 6, toString: 1, fret: 1 }],
   },
   G: {
     positions: [
@@ -74,31 +71,28 @@ export const GUITAR_CHORDS: { [key: string]: ChordData } = {
   B: {
     positions: [
       [6, "x"],
-      [5, 2],
       [4, 4],
       [3, 4],
       [2, 4],
-      [1, 2],
     ],
+    barres: [{ fromString: 5, toString: 1, fret: 2 }],
   },
 
   // マイナーコード
   Cm: {
     positions: [
-      [6, 1],
-      [5, 2],
-      [4, 3],
-      [3, 3],
-      [2, 1],
-      [1, 1],
+      [6, "x"],
+      [4, 5],
+      [3, 5],
+      [2, 4],
     ],
-    position: 4,
+    barres: [{ fromString: 5, toString: 1, fret: 3 }],
   },
   Dm: {
     positions: [
       [6, "x"],
       [5, "x"],
-      [4, 3],
+      [4, 0],
       [3, 2],
       [2, 3],
       [1, 1],
@@ -116,25 +110,17 @@ export const GUITAR_CHORDS: { [key: string]: ChordData } = {
   },
   Fm: {
     positions: [
-      [6, 1],
       [5, 3],
       [4, 3],
-      [3, 1],
-      [2, 1],
-      [1, 1],
     ],
-    barres: [{ fromString: 1, toString: 6, fret: 1 }],
+    barres: [{ fromString: 6, toString: 1, fret: 1 }],
   },
   Gm: {
     positions: [
-      [6, 3],
       [5, 5],
       [4, 5],
-      [3, 3],
-      [2, 3],
-      [1, 3],
     ],
-    barres: [{ fromString: 1, toString: 6, fret: 3 }],
+    barres: [{ fromString: 6, toString: 1, fret: 3 }],
   },
   Am: {
     positions: [
@@ -149,11 +135,10 @@ export const GUITAR_CHORDS: { [key: string]: ChordData } = {
   Bm: {
     positions: [
       [6, "x"],
-      [5, 2],
       [4, 4],
       [3, 4],
       [2, 3],
-      [1, 2],
     ],
+    barres: [{ fromString: 5, toString: 1, fret: 2 }],
   },
 };

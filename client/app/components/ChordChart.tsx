@@ -36,7 +36,7 @@ export default function ChordChart({
       numStrings: 6,
       numFrets: 5,
       showTuning: false,
-      position: chordData.position || 1,
+      position: 1,
     });
 
     // コードを描画
@@ -46,12 +46,18 @@ export default function ChordChart({
     });
   }, [chordName, width, height]);
 
+  const chordData = GUITAR_CHORDS[chordName];
+  const position = chordData.position;
+
   return (
-    <div className="inline-block text-center w-[150px] h-[180px] p-4">
+    <div className="inline-block text-center w-[150px] h-[180px] p-4 relative">
       <div
         className="transform -rotate-90 w-full h-full flex items-center justify-center"
         ref={containerRef}
       />
+      {position && (
+        <div className="absolute bottom-8 left-[42px]">{position}</div>
+      )}
       <div className="mt-2 text-sm font-medium">{chordName}</div>
     </div>
   );
