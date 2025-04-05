@@ -47,7 +47,7 @@ export default function ChordChart({
   }, [chordName, width, height]);
 
   const chordData = GUITAR_CHORDS[chordName];
-  const position = chordData.position;
+  const position = chordData?.position;
 
   return (
     <div className="inline-block text-center w-[150px] h-[180px] p-4 relative">
