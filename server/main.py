@@ -6,7 +6,15 @@ import io
 import soundfile as sf
 from pydub import AudioSegment
 import librosa
-import json
+from openai import OpenAI
+from dotenv import load_dotenv
+import os
+
+# 環境変数の読み込み
+load_dotenv()
+
+# OpenAIクライアントの初期化
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 app = FastAPI()
 
@@ -55,16 +63,20 @@ async def create_code(
         # 音声特徴量の抽出
         audio_features = analyze_audio(denoised_audio, sample_rate)
 
+        # コード進行の生成
+        chord_progression = generate_chord_progression(audio_features)
+
         # 処理済みの音声データをバイトデータに変換
         output_buffer = io.BytesIO()
         sf.write(output_buffer, denoised_audio, sample_rate, format='WAV')
         processed_audio = output_buffer.getvalue()
 
         return {
-            "message": "音声解析が完了しました",
+            "message": "音声解析とコード進行の生成が完了しました",
             "bpm": bpm,
             "audio_size": len(processed_audio),
-            "audio_features": audio_features
+            "audio_features": audio_features,
+            "chord_progression": chord_progression
         }
     except Exception as e:
         return {"message": f"エラーが発生しました: {str(e)}"}
@@ -133,3 +145,56 @@ def analyze_audio(audio_data, sample_rate):
     features['rms_std'] = float(np.std(rms))
 
     return features
+
+def generate_chord_progression(features):
+    # 音楽特徴量を文字列に変換
+    musical_description = f"""
+    テンポ: {features['tempo']}BPM
+    平均ピッチ: {features.get('average_pitch', 'N/A')}Hz
+    ピッチの変動: {features.get('pitch_std', 'N/A')}
+    音の明るさ: {features['spectral_centroid_mean']}
+    音量の平均: {features['rms_mean']}
+    音量の変動: {features['rms_std']}
+
+    クロマグラム（音階の分布）:
+    C:{features['chroma_mean'][0]:.3f}, C#:{features['chroma_mean'][1]:.3f}, 
+    D:{features['chroma_mean'][2]:.3f}, D#:{features['chroma_mean'][3]:.3f},
+    E:{features['chroma_mean'][4]:.3f}, F:{features['chroma_mean'][5]:.3f},
+    F#:{features['chroma_mean'][6]:.3f}, G:{features['chroma_mean'][7]:.3f},
+    G#:{features['chroma_mean'][8]:.3f}, A:{features['chroma_mean'][9]:.3f},
+    A#:{features['chroma_mean'][10]:.3f}, B:{features['chroma_mean'][11]:.3f}
+    """
+
+    # OpenAIにプロンプトを送信
+    response = client.chat.completions.create(
+        model="gpt-3.5-turbo",
+        messages=[
+            {
+                "role": "system",
+                "content": """
+                あなたは音楽理論の専門家です。与えられた音声の特徴量に基づいて、
+                最適なギターのコード進行を提案してください。
+                以下の点を考慮してください：
+                - テンポに合った適切なリズム感
+                - 主要な音階に基づいたキーの選択
+                - 曲の雰囲気に合った進行
+                - 8小節程度の進行を提案
+                """
+            },
+            {
+                "role": "user",
+                "content": f"""
+                以下の音声特徴量に基づいて、ギターのコード進行を提案してください：
+
+                {musical_description}
+
+                以下の形式で回答してください：
+                1. 選択したキーとその理由
+                2. コード進行（8小節）
+                3. 進行の説明と演奏アドバイス
+                """
+            }
+        ]
+    )
+
+    return response.choices[0].message.content
