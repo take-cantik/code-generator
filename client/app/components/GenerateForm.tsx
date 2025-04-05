@@ -13,7 +13,7 @@ export default function GenerateForm() {
     stopRecording,
     isRecording,
     isLoading,
-    result,
+    codeList,
     audioUrl,
     audioPlayerRef,
     bpm,
@@ -82,7 +82,13 @@ export default function GenerateForm() {
             />
           </div>
         )}
-        {result && <div className="mt-4 p-4 bg-gray-100 rounded">{result}</div>}
+        {codeList && (
+          <div className="grid grid-cols-4 gap-4">
+            {codeList.map((code) => (
+              <ChordChart key={code} chordName={code} />
+            ))}
+          </div>
+        )}
       </div>
     </>
   );

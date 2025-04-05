@@ -7,7 +7,7 @@ type FormData = {
 };
 
 export const useGenerateForm = () => {
-  const [result, setResult] = useState<string | null>(null);
+  const [codeList, setCodeList] = useState<string[] | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
@@ -82,10 +82,10 @@ export const useGenerateForm = () => {
       });
 
       const responseData = await response.json();
-      setResult(responseData.message);
+      setCodeList(responseData.code_list);
     } catch (error) {
       console.error("Error:", error);
-      setResult("エラーが発生しました");
+      setCodeList(null);
     } finally {
       setIsLoading(false);
     }
@@ -99,7 +99,7 @@ export const useGenerateForm = () => {
     stopRecording,
     isRecording,
     isLoading,
-    result,
+    codeList,
     audioUrl,
     audioPlayerRef,
     bpm,

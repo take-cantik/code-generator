@@ -9,6 +9,7 @@ import librosa
 from openai import OpenAI
 from dotenv import load_dotenv
 import os
+import json
 
 # 環境変数の読み込み
 load_dotenv()
@@ -64,7 +65,7 @@ async def create_code(
         audio_features = analyze_audio(denoised_audio, sample_rate)
 
         # コード進行の生成
-        chord_progression = generate_chord_progression(audio_features)
+        code_list = generate_chord_progression(audio_features)
 
         # 処理済みの音声データをバイトデータに変換
         output_buffer = io.BytesIO()
@@ -76,7 +77,7 @@ async def create_code(
             "bpm": bpm,
             "audio_size": len(processed_audio),
             "audio_features": audio_features,
-            "chord_progression": chord_progression
+            "code_list": code_list,
         }
     except Exception as e:
         return {"message": f"エラーが発生しました: {str(e)}"}
@@ -176,9 +177,10 @@ def generate_chord_progression(features):
                 最適なギターのコード進行を提案してください。
                 以下の点を考慮してください：
                 - テンポに合った適切なリズム感
+                - 1小節毎にコード進行を提案
                 - 主要な音階に基づいたキーの選択
                 - 曲の雰囲気に合った進行
-                - 8小節程度の進行を提案
+                - 16小節程度の進行を提案
                 """
             },
             {
@@ -188,13 +190,27 @@ def generate_chord_progression(features):
 
                 {musical_description}
 
-                以下の形式で回答してください：
-                1. 選択したキーとその理由
-                2. コード進行（8小節）
-                3. 進行の説明と演奏アドバイス
+                以下の形式でJSON形式で回答してください：
+                {{
+                    "key": "選択したキー（例: "C"）",
+                    "key_reason": "キーを選択した理由",
+                    "chords": ["コード1", "コード2", "コード3", ...],  // 8小節分のコード進行
+                    "explanation": "進行の説明と演奏アドバイス"
+                }}
+
+                使用可能なコード：
+                メジャー: "C", "D", "E", "F", "G", "A", "B"
+                マイナー: "Cm", "Dm", "Em", "Fm", "Gm", "Am", "Bm"
                 """
             }
         ]
     )
 
-    return response.choices[0].message.content
+    # レスポンスをJSONとしてパースし、コード進行の配列を抽出
+    try:
+        result = json.loads(response.choices[0].message.content)
+        return result["chords"]
+    except json.JSONDecodeError:
+        return []  # JSONのパースに失敗した場合は空配列を返す
+    except KeyError:
+        return []  # chordsキーが存在しない場合は空配列を返す

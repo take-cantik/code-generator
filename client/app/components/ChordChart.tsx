@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { ChordBox } from "vexchords";
-import { ChordData, GUITAR_CHORDS } from "../constants/chords";
+import { GUITAR_CHORDS } from "../constants/chords";
 
 type ChordChartProps = {
   chordName: string;
