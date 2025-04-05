@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useForm } from "react-hook-form";
 
 type FormData = {
@@ -16,17 +16,82 @@ export default function GenerateForm() {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const audioPlayerRef = useRef<HTMLAudioElement>(null);
+  const metronomeIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const oscillatorRef = useRef<OscillatorNode | null>(null);
+  const gainNodeRef = useRef<GainNode | null>(null);
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<FormData>({
+  const { register, handleSubmit, watch } = useForm<FormData>({
     defaultValues: {
       capo: 1,
       bpm: 120,
     },
   });
+
+  const bpm = watch("bpm");
+
+  const playMetronome = () => {
+    if (!audioContextRef.current) {
+      audioContextRef.current = new AudioContext();
+    }
+
+    // オシレーターとゲインノードの作成
+    const oscillator = audioContextRef.current.createOscillator();
+    const gainNode = audioContextRef.current.createGain();
+
+    // 音の設定
+    oscillator.type = "sine";
+    oscillator.frequency.value = 880; // A5の音
+    gainNode.gain.value = 0.1;
+
+    // 接続
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContextRef.current.destination);
+
+    // 音を鳴らす
+    oscillator.start();
+    oscillator.stop(audioContextRef.current.currentTime + 0.1);
+
+    oscillatorRef.current = oscillator;
+    gainNodeRef.current = gainNode;
+  };
+
+  const startMetronome = () => {
+    if (metronomeIntervalRef.current) {
+      clearInterval(metronomeIntervalRef.current);
+    }
+
+    const interval = (60 / bpm) * 1000; // BPMからミリ秒に変換
+    metronomeIntervalRef.current = setInterval(playMetronome, interval);
+  };
+
+  const stopMetronome = () => {
+    if (metronomeIntervalRef.current) {
+      clearInterval(metronomeIntervalRef.current);
+      metronomeIntervalRef.current = null;
+    }
+
+    if (oscillatorRef.current) {
+      oscillatorRef.current.stop();
+      oscillatorRef.current = null;
+    }
+
+    if (gainNodeRef.current) {
+      gainNodeRef.current.disconnect();
+      gainNodeRef.current = null;
+    }
+
+    if (audioContextRef.current) {
+      audioContextRef.current.close();
+      audioContextRef.current = null;
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      stopMetronome();
+    };
+  }, []);
 
   const startRecording = async () => {
     try {
@@ -51,7 +116,10 @@ export default function GenerateForm() {
         setAudioUrl(url);
       };
 
-      // 100msごとにデータを収集
+      // メトロノームを開始
+      startMetronome();
+
+      // 録音を開始
       mediaRecorder.start(100);
       setIsRecording(true);
     } catch (error) {
@@ -67,6 +135,9 @@ export default function GenerateForm() {
         .getTracks()
         .forEach((track) => track.stop());
       setIsRecording(false);
+
+      // メトロノームを停止
+      stopMetronome();
     }
   };
 
