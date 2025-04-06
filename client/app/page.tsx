@@ -1,4 +1,4 @@
-import GenerateForm from "./components/GenerateForm";
+import MusicAnalyzer from "./components/MusicAnalyzer";
 
 export default function Home() {
   return (
@@ -10,7 +10,7 @@ export default function Home() {
           </h1>
           <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-24 h-1 bg-gradient-to-r from-transparent via-blue-500 to-transparent"></div>
         </div>
-        <GenerateForm />
+        <MusicAnalyzer />
       </div>
     </main>
   );

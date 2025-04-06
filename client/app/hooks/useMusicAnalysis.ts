@@ -11,7 +11,7 @@ type ChordProgression = {
   codeList: string[];
 };
 
-export const useGenerateForm = () => {
+export const useMusicAnalysis = () => {
   const [chordProgression, setCodeProgression] =
     useState<ChordProgression | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -20,6 +20,7 @@ export const useGenerateForm = () => {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const audioPlayerRef = useRef<HTMLAudioElement>(null);
+  const audioBlobRef = useRef<Blob | null>(null);
 
   const { register, handleSubmit, watch, setValue } = useForm<FormData>({
     defaultValues: {
@@ -49,6 +50,7 @@ export const useGenerateForm = () => {
         const audioBlob = new Blob(audioChunksRef.current, {
           type: "audio/webm",
         });
+        audioBlobRef.current = audioBlob;
         const url = URL.createObjectURL(audioBlob);
         setAudioUrl(url);
         setValue("audioData", audioBlob);
@@ -78,9 +80,14 @@ export const useGenerateForm = () => {
     try {
       const formData = new FormData();
       formData.append("bpm", data.bpm.toString());
-      if (data.audioData) {
-        formData.append("audio", data.audioData, "recording.webm");
+
+      if (!audioBlobRef.current) {
+        alert("録音データがありません。録音を開始してください。");
+        setIsLoading(false);
+        return;
       }
+
+      formData.append("audio", audioBlobRef.current, "recording.webm");
 
       const response = await fetch("http://localhost:8080/code", {
         method: "POST",
@@ -88,7 +95,20 @@ export const useGenerateForm = () => {
       });
 
       const responseData = await response.json();
-      setCodeProgression(responseData);
+
+      // レスポンスデータの検証
+      if (
+        responseData.codeList &&
+        Array.isArray(responseData.codeList) &&
+        responseData.codeList.length > 0
+      ) {
+        setCodeProgression({
+          codeList: responseData.codeList,
+          capo: responseData.capo || 0,
+        });
+      } else {
+        setCodeProgression(null);
+      }
     } catch (error) {
       console.error("Error:", error);
       setCodeProgression(null);
