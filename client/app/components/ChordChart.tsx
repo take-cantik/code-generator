@@ -58,7 +58,7 @@ export default function ChordChart({
       {position && (
         <div className="absolute bottom-8 left-[42px]">{position}</div>
       )}
-      <div className="mt-2 text-sm font-medium">{chordName}</div>
+      <div className="-mt-4 text-sm font-medium">{chordName}</div>
     </div>
   );
 }
