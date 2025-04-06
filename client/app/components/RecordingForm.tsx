@@ -13,6 +13,10 @@ type RecordingFormProps = {
   onStartRecording: () => Promise<void>;
   onStopRecording: () => void;
   onSubmit: (e: React.FormEvent) => void;
+  error: {
+    type: "recording" | "analysis" | null;
+    message: string;
+  };
 };
 
 export default function RecordingForm({
@@ -24,6 +28,7 @@ export default function RecordingForm({
   onStopRecording,
   onSubmit,
   bpm,
+  error,
 }: RecordingFormProps) {
   const { start: startMetronome, stop: stopMetronome } = useMetronome(bpm);
 
@@ -73,6 +78,11 @@ export default function RecordingForm({
           </button>
         </div>
       </form>
+      {error.type && (
+        <div className="mt-4 p-3 rounded-lg bg-rose-50 text-rose-700 border border-rose-200">
+          <p className="text-sm">{error.message}</p>
+        </div>
+      )}
     </div>
   );
 }
