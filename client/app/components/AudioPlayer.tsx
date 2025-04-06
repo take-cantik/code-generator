@@ -10,8 +10,8 @@ export default function AudioPlayer({
   audioPlayerRef,
 }: AudioPlayerProps) {
   return (
-    <div className="bg-white/80 backdrop-blur-sm p-6 rounded-lg shadow-md border border-blue-100">
-      <h3 className="text-lg font-medium text-blue-800 mb-4">録音した音声</h3>
+    <div className="bg-white/80 backdrop-blur-sm p-6 rounded-lg shadow-md border border-sky-100">
+      <h3 className="text-lg font-medium text-sky-700 mb-4">録音した音声</h3>
       <audio ref={audioPlayerRef} src={audioUrl} controls className="w-full" />
     </div>
   );

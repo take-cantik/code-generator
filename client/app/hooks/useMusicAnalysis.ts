@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, SubmitHandler } from "react-hook-form";
 
-type FormData = {
+export type FormData = {
   bpm: number;
   audioData?: Blob;
 };
@@ -74,7 +74,7 @@ export const useMusicAnalysis = () => {
     }
   };
 
-  const onSubmit = async (data: FormData) => {
+  const onSubmit: SubmitHandler<FormData> = async (data) => {
     setIsLoading(true);
 
     try {

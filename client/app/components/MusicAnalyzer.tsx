@@ -7,31 +7,34 @@ import ChordProgressionDisplay from "./ChordProgressionDisplay";
 
 export default function MusicAnalyzer() {
   const {
-    startRecording,
-    stopRecording,
+    bpm,
     isRecording,
     isLoading,
     chordProgression,
     audioUrl,
     audioPlayerRef,
+    register,
+    handleSubmit,
     onSubmit,
+    startRecording,
+    stopRecording,
   } = useMusicAnalysis();
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <RecordingForm
-        onStartRecording={startRecording}
-        onStopRecording={stopRecording}
+        bpm={bpm}
         isRecording={isRecording}
-        onSubmit={onSubmit}
         isLoading={isLoading}
         hasAudioData={!!audioUrl}
+        register={register}
+        onStartRecording={startRecording}
+        onStopRecording={stopRecording}
+        onSubmit={handleSubmit(onSubmit)}
       />
-
       {audioUrl && (
         <AudioPlayer audioUrl={audioUrl} audioPlayerRef={audioPlayerRef} />
       )}
-
       {chordProgression && (
         <ChordProgressionDisplay chordProgression={chordProgression} />
       )}

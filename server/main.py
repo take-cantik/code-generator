@@ -3,7 +3,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from .services.audio_converter import convert_audio_to_wav
 from .services.audio_processor import denoise_audio, analyze_audio
 from .services.chord_generator import generate_chord_progression
-from .schemas.music import AudioFeatures
 
 app = FastAPI()
 

@@ -1,70 +1,65 @@
 "use client";
 
-import { useForm } from "react-hook-form";
+import { UseFormRegister } from "react-hook-form";
+import { FormData } from "../hooks/useMusicAnalysis";
 import { useMetronome } from "../hooks/useMetronome";
 
 type RecordingFormProps = {
-  onStartRecording: () => Promise<void>;
-  onStopRecording: () => void;
+  bpm: number;
   isRecording: boolean;
-  onSubmit: (data: { bpm: number }) => void;
   isLoading: boolean;
   hasAudioData: boolean;
+  register: UseFormRegister<FormData>;
+  onStartRecording: () => Promise<void>;
+  onStopRecording: () => void;
+  onSubmit: (e: React.FormEvent) => void;
 };
 
 export default function RecordingForm({
-  onStartRecording,
-  onStopRecording,
   isRecording,
-  onSubmit,
   isLoading,
   hasAudioData,
+  register,
+  onStartRecording,
+  onStopRecording,
+  onSubmit,
+  bpm,
 }: RecordingFormProps) {
-  const { register, handleSubmit, watch } = useForm<{ bpm: number }>({
-    defaultValues: {
-      bpm: 120,
-    },
-  });
-
-  const bpm = watch("bpm");
   const { start: startMetronome, stop: stopMetronome } = useMetronome(bpm);
 
-  const handleRecording = async () => {
+  const handleRecordingToggle = async () => {
     if (isRecording) {
-      onStopRecording();
       stopMetronome();
+      onStopRecording();
     } else {
-      await onStartRecording();
       startMetronome();
+      await onStartRecording();
     }
   };
 
   return (
-    <form
-      onSubmit={handleSubmit(onSubmit)}
-      className="bg-white/80 backdrop-blur-sm p-6 rounded-lg shadow-md space-y-6 border border-blue-100"
-    >
-      <div className="flex items-end gap-6">
-        <label className="flex-1">
-          <span className="block text-sm font-medium text-blue-700 mb-1">
-            BPM
-          </span>
+    <div className="bg-white/80 backdrop-blur-sm p-6 rounded-lg shadow-md border border-sky-100">
+      <h3 className="text-lg font-medium text-sky-700 mb-6">録音設定</h3>
+      <form onSubmit={onSubmit} className="flex items-center justify-between">
+        <div className="flex items-center space-x-4">
+          <label className="text-sky-600 font-medium whitespace-nowrap">
+            BPM:
+          </label>
           <input
             type="number"
-            {...register("bpm", { valueAsNumber: true })}
-            className="w-full px-3 py-2 border border-blue-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            min="40"
-            max="200"
+            {...register("bpm", { min: 40, max: 200 })}
+            className="w-24 px-3 py-2 border border-sky-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-400"
           />
-        </label>
-        <div className="flex gap-4">
+        </div>
+
+        <div className="flex space-x-3">
           <button
             type="button"
-            onClick={handleRecording}
-            className={`px-6 py-2 rounded-md text-white transition-colors ${
+            onClick={handleRecordingToggle}
+            className={`px-6 py-2.5 text-white rounded-lg transition-colors duration-200 ${
               isRecording
-                ? "bg-rose-500 hover:bg-rose-600"
-                : "bg-indigo-500 hover:bg-indigo-600"
+                ? "bg-rose-400 hover:bg-rose-500"
+                : "bg-emerald-400 hover:bg-emerald-500"
             }`}
           >
             {isRecording ? "録音停止" : "録音開始"}
@@ -72,16 +67,12 @@ export default function RecordingForm({
           <button
             type="submit"
             disabled={isLoading || !hasAudioData}
-            className={`px-6 py-2 text-white rounded-md transition-colors ${
-              hasAudioData
-                ? "bg-emerald-500 hover:bg-emerald-600"
-                : "bg-gray-400 cursor-not-allowed"
-            }`}
+            className="px-6 py-2.5 bg-sky-400 text-white rounded-lg hover:bg-sky-500 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors duration-200"
           >
-            {isLoading ? "生成中..." : "生成"}
+            {isLoading ? "分析中..." : "分析開始"}
           </button>
         </div>
-      </div>
-    </form>
+      </form>
+    </div>
   );
 }
